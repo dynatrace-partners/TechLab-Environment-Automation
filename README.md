@@ -33,7 +33,7 @@ We will run these steps individually, so you get a feel for how they operate. In
 
 **Amazon Web Services (AWS)**
 
-**ATTENTION:** This is the same as the tokens created in TechLab-Environment-Automation so if you are following on from that, you still have the credentials and they are still active in EC2 you can use those and do not need to complete this.
+**ATTENTION:** These are the same as the tokens created in TechLab-Managed-Cluster-Automation so if you are following on from that, you still have the credentials and they are still active in EC2 you can use those and do not need to complete this.
 
 We are going to use AWS EC2. We have tested this tutorial on eu-west-1 (Ireland), Paris (eu-west-3) & ..... . To be on the safe side we suggest you pick one of these regions!
 
@@ -124,7 +124,7 @@ Once you have installed Postman we need a couple of things
 
     ![](./images/preparation/postmanSelEnv.png)
 
-**ATTENTION:** The first 3 requests create the same instances as in TechLab-Environment-Automation so if you are following on from that, your ec2 instances are still running and you plan to use those, then you can skip the first 3 steps.
+**ATTENTION:** The first 3 requests create the same instances as in TechLab-Managed-Cluster-Automation so if you are following on from that, your ec2 instances are still running and you plan to use those, then you can skip the first 3 steps.
 
 # 1. Creating a dynatrace environment API token (Optional)
 
@@ -171,17 +171,17 @@ Content-Type | application/json | The response contains JSON payload
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server.
 Key | Value | Description
 ------------ | ------------- | -------------
-name | TechLab-Managed-Cluster-Automation | This will be the name of our token. Dynatrace doesn't enforce unique token names. You can create multiple tokens with the same name. Be sure to provide a meaningful name for each token you generate. Proper token naming helps you to efficiently manage your tokens and perhaps delete them when they're no longer needed.
+name | TechLab-Environment-Automation | This will be the name of our token. Dynatrace doesn't enforce unique token names. You can create multiple tokens with the same name. Be sure to provide a meaningful name for each token you generate. Proper token naming helps you to efficiently manage your tokens and perhaps delete them when they're no longer needed.
 scopes | InstallerDownload | This is the permissions the token will hold. In our case we only require the installer download. For a full list of permissions see [token permission](https://www.dynatrace.com/support/help/dynatrace-api/basics/dynatrace-api-authentication#token-permissions)
 expiresIn | 4 HOURS | This is an optional parameter that will cause the token to expire after a given time. It is strongly recommended to rotate your tokens frequently and this parameter can help you with that but be careful when using integrations. If not set then the token never expires.
 
 **Tests**
 
 This is part of postman and not a requirement to create an environment via an API call. You can use Tests in Postman to execute JavaScript after a request runs. You can find more details [here](https://learning.postman.com/docs/postman/scripts/test-scripts/)
-In our case the script parses the JSON response body for the new API token and sets it as environment variable paasToken so we can use it in the Launch AWS easyTravel Instances request to auto deploy the OneAgent.
+In our case the script parses the JSON response body for the new API token and sets it as environment variable `paasToken` so we can use it in the Launch AWS easyTravel Instances request to auto deploy the OneAgent.
 
 **Executing the request**
-1. Open the Create Installer Token request.
+1. Open the `Create Installer Token \(Optional\)` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
@@ -195,14 +195,20 @@ In our case the script parses the JSON response body for the new API token and s
 
 ![](./images/envtoken/createInstTokVars.png)
 
+If you wish to see the token in your dynatrace environment you can see it under Deploy Dynatrace > Set up PaaS integration
+
+![](./images/envtoken/createInstTokDT.png)
+
 Congratulations you have just created a new API token with installer download permission via an API call. Now Let's launch some EC2 instances and automatically deploy the OneAgent.
 
 # 2. Get AWS AMI ID (Optional)
 
-As this is not a dynatrace API call and is purely to get an AMI ID we will not cover this in as much detail. For more information on it please see the [aws documentation](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html). This request polls the AWS API to get the latest Ubuntu AMI in your region, it is filtered to the Ubuntu Cloud Account. This way when you launch an ec2 instance in the next step it will use this AMI to ensure you are on an up-to-date version. When you send the request the AMI ID will be stored as environment variable ImageId.
+As this is not a dynatrace API call and is purely to get an AMI ID we will not cover this in as much detail. For more information on it please see the [aws documentation](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html). 
+
+This request polls the AWS API to get the latest Ubuntu AMI in your region, it is filtered to the Ubuntu Cloud Account. This way when you launch an ec2 instance in the next step it will use this AMI to ensure you are on an up-to-date version. When you send the request the AMI ID will be stored as environment variable ImageId.
 
 **Executing the request**
-1. Open the Get AWS AMI ID request.
+1. Open the `Get AWS AMI ID \(Optional\)`request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `200 OK` response.
 
@@ -210,7 +216,7 @@ As this is not a dynatrace API call and is purely to get an AMI ID we will not c
 
     If you get a 401 error check the value of your accessKeyID, secretAccessKey and region environment variables. Ensure both the initial and current values are set and the same. If they are verify you have added the correct roles in IAM.
 
-5. Check that the ImageId environment variable has been set in postman
+5. Check that the ImageId environment variable has been set in postman. Please note it may be different than my screen shot as this will change every time a new image is realeased.
 
 ![](./images/ami/getAMIVars.png)
 
@@ -272,7 +278,7 @@ To change the shutdown behaviour of an instance using the console (only after yo
 
 **Executing the request**
 This request is designed to start 2 instance of easyTravel, one with the host group production and the second with the host group test. We will execute the request twice to achieve this. No changes are required as they are done automatically
-1. Open the Launch AWS easyTravel Instances request.
+1. Open the `Launch AWS easyTravel Instances \(Optional\)` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `200 OK` response and the Production instance name tag.
 
@@ -306,7 +312,19 @@ If after 10 mins your hosts have not appeared in dynatrace check the following.
 
 # 4. Get host information
 
-Now that you have deployed your two hosts, log into dyantrace and check out the monitoring. Is it easy to tell which host is test and which is production? How would you filter to only see the data for one environment? Have a look at the Transactions and services tab. You should see that each service exists twice. This is because the host group automatically separates the process groups and services. In these next requests we want to configure our environment so the users can get better value from it. In order to do this we need some information on our hosts so rather than gather that manually we will use the API to get the info we need and then use it to configure the environment using API calls.
+Now that you have deployed your two hosts, log into dyantrace and check out the monitoring. Is it easy to tell which host is test and which is production? 
+
+![](./images/runinstances/hostsDT.png)
+
+Te only real way to currently tell which is which is to look at the host information where we can see our host group. This might not be that much of an issue in our environment as we only have 2 hosts but in a real customer environment this would be challenging. You will also see here the additional meta data we supplied when we created the hosts which we will use later.
+
+![](./images/runinstances/hostPropsDT.png)
+
+How would you filter to only see the data for one environment? Have a look at the Transactions and services tab. You should see that each service exists twice. This is because the host group automatically separates the process groups and services. 
+
+![](./images/runinstances/servicesDT.png)
+
+In these next requests we want to configure our environment so the users can get better value from it. In order to do this we need some information on our hosts so rather than gather that manually we will use the API to get the info we need and then use it to configure the environment using API calls.
 
 ## Get host information background 
 
@@ -348,7 +366,7 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script parses the JSON response body for the public host names of both hosts and sets them as environment variables prodPublicHostName & testPublicHostName so we can use it in the Create App Detection rules request to separate our production and test RUM traffic..
 
 **Executing the request**
-1. Open the Get Hosts request.
+1. Open the `Get Hosts` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `200 OK` response.
 
@@ -392,7 +410,7 @@ Let's have a look at the configuration of this request so we can understand what
 
 This is a Post request that leverages the config v1 API endpoint autoTags. This is different than the previous endpoints as this is now a config endpoint where we have previously used an entity endpoint. Config endpoints apply specifically to the specified environment.  
 
-By making a request to this API endpoint we will create new auto tagging rules on our environment.
+By making a request to this API endpoint we will create new auto tagging rules on our environment. In our example we will create 2 auto tagging rules. One will be called environment and the value will be the host group. This means in the future if we add another host group such as Dev it will be automatically be tagged with the correct value. The second rule will leverage the meta data we supplied when creating the hosts. We will create a tag called Cost Center and the value will be taken from the meta data parameter Cost_Center. The will allow us to pass the cost center to process groups and services that run on the host. This could be used later for cross charging.
 
 **Headers**
 
@@ -426,9 +444,9 @@ Key | Value | Description
 name | Cost Center | This will be the name of our tag. Be sure to provide a meaningful name for each tag you create. 
 type | PROCESS_GROUP | This is the entity we want our rule to be applied to, in our case we will choose process group.
 enabled | true | This means we want the rule to active straight away. If you are setting something up in advance you may set this to false and enable it later.
-valueFormat | \{HostGroup:Name\} | For our environment tag we want to set the value to the host group name, so we set this to the property HostGroup:Name.
+valueFormat | \{HostGroup:Name\} | For our Cost Center tag we want to set the value to the host meta data property Cost_Center, so we set this to the property Host:Environment:Cost_Center.
 propagationTypes | PROCESS_GROUP_TO_HOST & PROCESS_GROUP_TO_SERVICE | This tells the rule that we want to also push the tag to Host and Service level for matching process groups.
-key | HOST_GROUP_NAME | We will set a condition to say only apply the tag if a host group exists
+key | HOST_CUSTOM_METADATA, source: ENVIRONMENT, key: Cost_Center | We will set a condition to say only apply the tag if a cost center exists
 
 **Tests**
 
@@ -436,21 +454,32 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script parses the JSON response body for the new tag IDs and sets them as environment variable envTagID & ccTagID so we can use them later to modify the tag rules. The script also controls setting which rule we are running and throws an error if the request is executed again after both tags have been created.
 
 **Executing the request**
-1. Open the Create New Auto Tag request.
+1. Open the `Create New Auto Tag` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createTagResp.png)
+![](./images/envtoken/createEnvTagResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write COnfig API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
-5. Check that the envTagID & ccTagID environment variables have been set in postman
+4. Execute the request again to create the Cost Center tag.
+5. Check that the request received a `201 Created` response.
+
+![](./images/envtoken/createCCTagResp.png)
+
+    If you get an error follow the troubleshooting above.
+
+6. Check that the envTagID & ccTagID environment variables have been set in postman
 
 ![](./images/envtoken/createTagVars.png)
 
-Congratulations you have just created 2 new auto tags with via an API call. Now Let's leverage those tags to create management zones.
+7. View the results in your dynatrace environment.
+
+![](./images/envtoken/tagsDT.png)
+
+Congratulations you have just created 2 new auto tags via an API call. Now Let's leverage those tags to create management zones.
 
 # 6. Creating dynatrace management zones
 
@@ -498,11 +527,11 @@ Content-Type | application/json | The response contains JSON payload
 
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server. In our case we want to create 2 distinct rules so the bodies will be updated with environment variables to set the correct values.
 
-We will supply 3 rules for each management zone. The rules will cover services, process groups and web applications to ensure all components are correctly mapped. For each of these levels we will perform the mapping based on the environment tag we created in the previous step. This means that future instances would be automatically mapped if setup correctly.
+We will supply 3 rules for each management zone. The rules will cover services, processes, process groups and web applications to ensure all components are correctly mapped. For each of these levels we will perform the mapping based on the environment tag we created in the previous step. This means that future instances would be automatically mapped if setup correctly.
 
 **Pre-request script**
 This is part of postman. You can use pre-request scripts in Postman to execute JavaScript before a request runs. You can find more details [here](https://learning.postman.com/docs/postman/scripts/pre-request-scripts/)
-In our case the script sets the correct management zone  when requests are executed and updates the request body to be sent.
+In our case the script sets the correct management zone  when requests are executed and updates the request body to be sent. This is because it is not possible to have a dynamic value for management zone names like we did for the environment tag value so we have to create a separate management zone rule for each one.
 
 **Tests**
 
@@ -510,7 +539,7 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script parses the JSON response body for the new management zone IDs and sets them as environment variables prodMZID & testMZID so we can use them later to create alerting profiles. The script also controls setting which rule we are running and throws an error if the request is executed again after both management zones have been created.
 
 **Executing the request**
-1. Open the Create Management Zones request.
+1. Open the `Create Management Zones` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
@@ -520,15 +549,27 @@ In our case the script parses the JSON response body for the new management zone
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
-5. Check that the prodMZID & testMZID environment variables have been set in postman
+4. Execute the request again to create the second management zone.
+5. Check that the request received a `201 Created` response.
+    If you get an error follow the troubleshooting above.
+
+6. Check that the prodMZID & testMZID environment variables have been set in postman
 
 ![](./images/envtoken/createMZVars.png)
+
+7. Try out your new management zones in dynatrace. It is now much easier to find the correct host.
+
+![](./images/envtoken/mzDT.png)
 
 Congratulations you have just created 2 new management zones with via an API call. Now Let's set up some web applications so we can correctly identify our RUM data.
 
 # 7. Creating dynatrace web applications
 
 ## Creating dynatrace web applications background 
+
+Have a look at the applications in your environment. You should see just My web application \(if you don't see any make sure to set your Management Zone filter to All\). This is the default application and it can't be delete. Any RUM traffic that doesn't match an application detection rule will end up here. We are running effectively 4 applications whioch are easyTravel and easyTravel Angular in prod and test. We need to ensure we separate these.
+
+![](./images/envtoken/mzDT.png)
 
 **What are dynatrace web applications?**
 
@@ -542,7 +583,7 @@ For all application types except for web applications, the definition of the Dyn
 
 Dynatrace  web applications can be generated manually inside the settings of the environment UI, but this can be cumbersome if you have a large amount to manage.
 
-In this exercise we will 4 web applications to separate our RUM data. Our ec2 instances each rum 2 applications, easyTravel and easyTravel Angular. We will create apps for each of these in both  test and production. Web application is just a container for the traffic, in order for the correct traffic to be associated with the correct web application we will then need to provide application detection rules, this will be done in the next step.
+In this exercise we will create 4 web applications to separate our RUM data. Our ec2 instances each rum 2 applications, easyTravel and easyTravel Angular. We will create apps for each of these in both  test and production. My Web application is just a container for the traffic, in order for the correct traffic to be associated with the correct web application we will then need to provide application detection rules, this will be done in the next step.
 
 ## Creating dynatrace web applications configuration
 
@@ -580,7 +621,7 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script parses the JSON response body for the new application IDs and sets them as environment variables so we can use them later to create application detection rules. The script also controls setting which rule we are running and throws an error if the request is executed again after all four applications have been created.
 
 **Executing the request**
-1. Open the Create New Web Application request.
+1. Open the `Create New Web Application` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
@@ -590,11 +631,18 @@ In our case the script parses the JSON response body for the new application IDs
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
-5. Check that the etAngProdAppID, etAngtestAppID, etProdAppID & etTestAppID environment variables have been set in postman
+4. Execute the request 3 more times to create the other web applications.
+5. Check that the request received a `201 Created` response.
+    If you get an error follow the troubleshooting above.
+6. Check that the etAngProdAppID, etAngtestAppID, etProdAppID & etTestAppID environment variables have been set in postman
 
 ![](./images/envtoken/createWebAppVars.png)
 
-Congratulations you have just created 4 new web applications via an API call. Now let's create the app detection rules to correctly map our rum traffic to them.
+7. Check that the web applications have been created in dynatrace. Please note no data will be mapped to these yet as all we have done is create the applications. Application detection rules are needed to map the traffic to the correct application and we will create these in the next step. You can check they have been created by navigating to Settings > Monitoring > Monitoring Overview > Applications
+
+![](./images/envtoken/webAppsDT.png)
+
+Congratulations you have just created 4 new web applications via an API call. Now let's create the app detection rules to correctly map our RUM traffic to them.
 
 # 8. Creating dynatrace application detection rules
 
@@ -648,7 +696,7 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script controls setting which rule we are running and throws an error if the request is executed again after all four application detection rules have been created.
 
 **Executing the request**
-1. Open the Create New App Detection Rules request.
+1. Open the `Create New App Detection Rules` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
@@ -658,14 +706,14 @@ In our case the script controls setting which rule we are running and throws an 
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
+4. Execute the request 3 more times to create the other application detection rules.
+5. Check that the request received a `201 Created` response.
+    If you get an error follow the troubleshooting above.
+6. Only new traffic will be mapped to our new applications. Wait a few minutes then check your applications page and you should see traffic in all four of you new applications. 
+
+![](./images/envtoken/createAppDetDT.png)
 
 Congratulations you have just created 4 new application detection rules via an API call. 
-
-5. Check that the prodPublicHostName & testPublicHostName environment variables have been set in postman.
-
-![](./images/envtoken/getHostsVars.png)
-
-Congratulations you have just collected information on your hosts using an API call. The same principals can be applied to all the data APIs.
 
 # 9. Modifying dynatrace auto tags
 
@@ -705,7 +753,7 @@ The body will be the same as the previous body but this time with 3 rules instea
 **Executing the request**
 1. Open the Modify New Auto Tag request.
 2. Click on `Send` to execute the request.
-3. Check that the request received a `201 Created` response.
+3. Check that the request received a `204 No Content` response.
 
 ![](./images/envtoken/modifyTagResp.png)
 
@@ -713,7 +761,7 @@ The body will be the same as the previous body but this time with 3 rules instea
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
-5. Inside your dynatrace UI check that the additional entities like the web apps have now had the environment tag added to them.
+4. Inside your dynatrace UI check that the web apps have now have the environment tag added to them.
 
 ![](./images/envtoken/modifyTagApps.png)
 
