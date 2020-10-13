@@ -25,6 +25,8 @@ We will run these steps individually, so you get a feel for how they operate. In
 3. You need a Dynatrace instance. The instance can be SaaS or Managed.
 4. An API token with the following roles - 
 ![](./images/api.png)
+5. Enable real-time updates to Java services under Settings > Server-side service monitoring > Deep monitoring
+![](./images/rtJava.png)
 5. Optional: ActiveGates - An ActiveGate is not required to complete these exercises but depending on your install and security requirements you may also require a Cluster and/or Environment ActiveGate. For more info see [When do I need to install an ActiveGate?](https://www.dynatrace.com/support/help/setup-and-configuration/dynatrace-activegate/basic-concepts/when-do-i-need-to-install-an-activegate/)
 6. [Postman](https://www.postman.com/downloads/) installed
 7. You need to clone or copy the content of this GitHub repo to your local disk!
@@ -989,7 +991,7 @@ The JSON body of the request provides the required information. The body must no
 **Executing the request**
 1. Open the Modify Web Application request.
 2. Click on `Send` to execute the request.
-3. Check that the request received a `201 Created` response.
+3. Check that the request received a `204 No Content` response.
 
 ![](./images/envtoken/modifyWebAppResp.png)
 
@@ -1061,6 +1063,8 @@ In our case the script controls setting which rule we are running and throws an 
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
+4. Execute the request again to create the Test alerting profile.
+5. Check that the request received a `201 Created` response.
 
 Congratulations you have just created 2 alerting profiles via an API call. 
 
