@@ -23,8 +23,7 @@ We will run these steps individually, so you get a feel for how they operate. In
 1. You need an AWS account. If you don't have one [get one here](https://aws.amazon.com/)
 2. AWS Access key and secret access key for an IAM user with rights ec2:RunInstances,  ec2:DescribeImages & ec2:CreateTags. If you don't know how to do this don't worry it is explained in the next section.
 3. You need a Dynatrace instance. The instance can be SaaS or Managed.
-4. An API token with the following roles - 
-![](./images/api.png)
+4. An API token with the following roles - Access problems and event feed, metrics, and topology; Read configuration; Write configuration; Capture request data; Token management and Read entities using API V2
 5. Enable real-time updates to Java services under Settings > Server-side service monitoring > Deep monitoring
 ![](./images/rtJava.png)
 5. Optional: ActiveGates - An ActiveGate is not required to complete these exercises but depending on your install and security requirements you may also require a Cluster and/or Environment ActiveGate. For more info see [When do I need to install an ActiveGate?](https://www.dynatrace.com/support/help/setup-and-configuration/dynatrace-activegate/basic-concepts/when-do-i-need-to-install-an-activegate/)
@@ -102,7 +101,7 @@ Once you have installed Postman we need a couple of things
 
     Inside Postman click on import, select file and upload TechLab-Environment-Automation.postman_environment.json
 
-    ![](./images/preparation/postmanEnv.png)
+    ![](./images/preparation/000)
 
 2. Upload the [<a id="raw-url" href="https://raw.githubusercontent.com/dynatrace-partners/TechLab-Environment-Automation/master/postman/TechLab-Environment-Automation.postman_collection.json">postman collection</a> we have provided.
 
@@ -299,7 +298,7 @@ This request is designed to start 2 instance of easyTravel, one with the host gr
 
 ![](./images/runinstances/runInstancesEC2.png)
 
-8. Check the deployment status in dynatrace to see if your hosts are now monitored. Please note this can take 5-10 mins. 
+8. Check the deployment status in dynatrace to see if your hosts are now monitored. You should also see that are hosts are assigned to the host grups `Production` and `Test`. Please note this can take 5-10 mins before the hosts appear. 
 
 ![](./images/runinstances/runInstancesDT.png)
 
@@ -316,15 +315,15 @@ If after 10 mins your hosts have not appeared in dynatrace check the following.
 
 Now that you have deployed your two hosts, log into dyantrace and check out the monitoring. Is it easy to tell which host is test and which is production? 
 
-![](./images/runinstances/hostsDT.png)
+![](./images/hosts/hostsDT.png)
 
 Te only real way to currently tell which is which is to look at the host information where we can see our host group. This might not be that much of an issue in our environment as we only have 2 hosts but in a real customer environment this would be challenging. You will also see here the additional meta data we supplied when we created the hosts which we will use later.
 
-![](./images/runinstances/hostPropsDT.png)
+![](./images/hosts/hostPropsDT.png)
 
 How would you filter to only see the data for one environment? Have a look at the Transactions and services tab. You should see that each service exists twice. This is because the host group automatically separates the process groups and services. 
 
-![](./images/runinstances/servicesDT.png)
+![](./images/hosts/servicesDT.png)
 
 In these next requests we want to configure our environment so the users can get better value from it. In order to do this we need some information on our hosts so rather than gather that manually we will use the API to get the info we need and then use it to configure the environment using API calls.
 
@@ -372,7 +371,7 @@ In our case the script parses the JSON response body for the public host names o
 2. Click on `Send` to execute the request.
 3. Check that the request received a `200 OK` response.
 
-![](./images/envtoken/getHostsResp.png)
+![](./images/hosts/getHostsResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -380,7 +379,7 @@ In our case the script parses the JSON response body for the public host names o
 
 5. Check that the prodPublicHostName & testPublicHostName environment variables have been set in postman.
 
-![](./images/envtoken/getHostsVars.png)
+![](./images/hosts/getHostsVars.png)
 
 Congratulations you have just collected information on your hosts using an API call. The same principals can be applied to all the data APIs.
 
@@ -460,7 +459,7 @@ In our case the script parses the JSON response body for the new tag IDs and set
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createEnvTagResp.png)
+![](./images/tags/createEnvTagResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -469,7 +468,7 @@ In our case the script parses the JSON response body for the new tag IDs and set
 4. Execute the request again to create the Cost Center tag.
 5. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createCCTagResp.png)
+![](./images/tags/createCCTagResp.png)
 
     If you get an error follow the troubleshooting above.
 
@@ -545,7 +544,7 @@ In our case the script parses the JSON response body for the new management zone
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createMZResp.png)
+![](./images/mzs/createMZResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -557,11 +556,11 @@ In our case the script parses the JSON response body for the new management zone
 
 6. Check that the prodMZID & testMZID environment variables have been set in postman
 
-![](./images/envtoken/createMZVars.png)
+![](./images/mzs/createMZVars.png)
 
 7. Try out your new management zones in dynatrace. It is now much easier to find the correct host.
 
-![](./images/envtoken/mzDT.png)
+![](./images/mzs/mzDT.png)
 
 Congratulations you have just created 2 new management zones with via an API call. Now Let's set up some web applications so we can correctly identify our RUM data.
 
@@ -571,7 +570,7 @@ Congratulations you have just created 2 new management zones with via an API cal
 
 Have a look at the applications in your environment. You should see just My web application \(if you don't see any make sure to set your Management Zone filter to All\). This is the default application and it can't be delete. Any RUM traffic that doesn't match an application detection rule will end up here. We are running effectively 4 applications whioch are easyTravel and easyTravel Angular in prod and test. We need to ensure we separate these.
 
-![](./images/envtoken/mzDT.png)
+![](./images/app/appDT.png)
 
 **What are dynatrace web applications?**
 
@@ -627,7 +626,7 @@ In our case the script parses the JSON response body for the new application IDs
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createWebAppResp.png)
+![](./images/app/createWebAppResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -638,11 +637,11 @@ In our case the script parses the JSON response body for the new application IDs
     If you get an error follow the troubleshooting above.
 6. Check that the etAngProdAppID, etAngtestAppID, etProdAppID & etTestAppID environment variables have been set in postman
 
-![](./images/envtoken/createWebAppVars.png)
+![](./images/app/createWebAppVars.png)
 
 7. Check that the web applications have been created in dynatrace. Please note no data will be mapped to these yet as all we have done is create the applications. Application detection rules are needed to map the traffic to the correct application and we will create these in the next step. You can check they have been created by navigating to Settings > Monitoring > Monitoring Overview > Applications
 
-![](./images/envtoken/webAppsDT.png)
+![](./images/app/webAppsDT.png)
 
 Congratulations you have just created 4 new web applications via an API call. Now let's create the app detection rules to correctly map our RUM traffic to them.
 
@@ -702,7 +701,7 @@ In our case the script controls setting which rule we are running and throws an 
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createAppDetResp.png)
+![](./images/app/createAppDetResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -713,7 +712,7 @@ In our case the script controls setting which rule we are running and throws an 
     If you get an error follow the troubleshooting above.
 6. Only new traffic will be mapped to our new applications. Wait a few minutes then check your applications page and you should see traffic in all four of you new applications. 
 
-![](./images/envtoken/createAppDetDT.png)
+![](./images/app/createAppDetDT.png)
 
 Congratulations you have just created 4 new application detection rules via an API call. 
 
@@ -725,8 +724,9 @@ Congratulations you have just created 4 new application detection rules via an A
 
 In your dynatrace environment have a look at your applications. Have they been assigned the environment tag? Do they appear in your management zones?
 
-In real-life scenarios you will find that you often need multiple tagging rules for them to function as you would like.
+![](./images/tags/appTagDT.png)
 
+In real-life scenarios you will find that you often need multiple tagging rules for them to function as you would like.
 
 ## Modifying dynatrace auto tags configuration
 
@@ -757,7 +757,7 @@ The body will be the same as the previous body but this time with 3 rules instea
 2. Click on `Send` to execute the request.
 3. Check that the request received a `204 No Content` response.
 
-![](./images/envtoken/modifyTagResp.png)
+![](./images/tags/modifyTagResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -765,7 +765,7 @@ The body will be the same as the previous body but this time with 3 rules instea
 
 4. Inside your dynatrace UI check that the web apps have now have the environment tag added to them.
 
-![](./images/envtoken/modifyTagApps.png)
+![](./images/tags/modifyTagApps.png)
 
 Congratulations you have just modified your first dynatrace configuration via an API call. While we only modified our environment tag, the same issue could be said for the cost center tag. In the future feel free to try modifying that one yourself.
 
@@ -816,7 +816,7 @@ The JSON body of the request provides the required information. The body must no
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createReqAttResp.png)
+![](./images/rqs/createReqAttResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
