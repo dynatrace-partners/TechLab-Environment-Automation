@@ -101,7 +101,7 @@ Once you have installed Postman we need a couple of things
 
     Inside Postman click on import, select file and upload TechLab-Environment-Automation.postman_environment.json
 
-    ![](./images/preparation/000)
+    ![](./images/preparation/postmanEnv.png)
 
 2. Upload the [<a id="raw-url" href="https://raw.githubusercontent.com/dynatrace-partners/TechLab-Environment-Automation/master/postman/TechLab-Environment-Automation.postman_collection.json">postman collection</a> we have provided.
 
@@ -474,11 +474,11 @@ In our case the script parses the JSON response body for the new tag IDs and set
 
 6. Check that the envTagID & ccTagID environment variables have been set in postman
 
-![](./images/envtoken/createTagVars.png)
+![](./images/tags/createTagVars.png)
 
 7. View the results in your dynatrace environment.
 
-![](./images/envtoken/tagsDT.png)
+![](./images/tags/tagsDT.png)
 
 Congratulations you have just created 2 new auto tags via an API call. Now Let's leverage those tags to create management zones.
 
