@@ -29,6 +29,8 @@ We will run these steps individually, so you get a feel for how they operate. In
 5. Optional: ActiveGates - An ActiveGate is not required to complete these exercises but depending on your install and security requirements you may also require a Cluster and/or Environment ActiveGate. For more info see [When do I need to install an ActiveGate?](https://www.dynatrace.com/support/help/setup-and-configuration/dynatrace-activegate/basic-concepts/when-do-i-need-to-install-an-activegate/)
 6. [Postman](https://www.postman.com/downloads/) installed
 7. You need to clone or copy the content of this GitHub repo to your local disk!
+8. An api endpoint. I recommend using [webhook,site](https://webhook.site)
+9. Your email address
 
 ## Preparation
 
@@ -103,7 +105,7 @@ Once you have installed Postman we need a couple of things
 
     ![](./images/preparation/postmanEnv.png)
 
-2. Upload the [<a id="raw-url" href="https://raw.githubusercontent.com/dynatrace-partners/TechLab-Environment-Automation/master/postman/TechLab-Environment-Automation.postman_collection.json">postman collection</a> we have provided.
+2. Upload the <a id="raw-url" href="https://raw.githubusercontent.com/dynatrace-partners/TechLab-Environment-Automation/master/postman/TechLab-Environment-Automation.postman_collection.json">postman collection</a> we have provided.
 
     Repeat the same process to import TechLab-Environment-Automation.postman_collection.json
 
@@ -115,7 +117,7 @@ Once you have installed Postman we need a couple of things
 
     * Click on the environment name TechLab-Environment-Automation
 
-    * Set the first 5 environment variables to your values. Ensure to set both the initial and current values. For dtManaged it should look like 'xxxxxx.dynatrace-managed.com' do not include the 'https://'. Do not touch the 'installET' variable.
+    * Set the first 5 environment variables to your values. Ensure to set both the initial and current values. For dtURL it should look like  SaaS - `{your-environment-id}.live.dynatrace.com` or for Managed - `{your-domain}/e/{your-environment-id}` do not include the 'https://'. Do not touch the 'installET' variable.
 
     ![](./images/preparation/environmentVars.png)
 
@@ -182,13 +184,13 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script parses the JSON response body for the new API token and sets it as environment variable `paasToken` so we can use it in the Launch AWS easyTravel Instances request to auto deploy the OneAgent.
 
 **Executing the request**
-1. Open the `Create Installer Token \(Optional\)` request.
+1. Open the `Create Installer Token (Optional)` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
 ![](./images/envtoken/createInstTokResp.png)
 
-    If you get a could not send request error check the value of your dtManaged environment variable and ensure it is in the format of `xxxxxx.dynatrace-managed.com` without the `https://`. Ensure both the initial and current values are set and the same.
+    If you get a could not send request error check the value of your dtURL environment variable and ensure it is in the format of `xxxxxx.dynatrace-managed.com` without the `https://`. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in CMC and it has the Service Provider API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
@@ -209,7 +211,7 @@ As this is not a dynatrace API call and is purely to get an AMI ID we will not c
 This request polls the AWS API to get the latest Ubuntu AMI in your region, it is filtered to the Ubuntu Cloud Account. This way when you launch an ec2 instance in the next step it will use this AMI to ensure you are on an up-to-date version. When you send the request the AMI ID will be stored as environment variable ImageId.
 
 **Executing the request**
-1. Open the `Get AWS AMI ID \(Optional\)`request.
+1. Open the `Get AWS AMI ID (Optional)`request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `200 OK` response.
 
