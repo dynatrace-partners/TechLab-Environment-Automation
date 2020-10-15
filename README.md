@@ -117,7 +117,7 @@ Once you have installed Postman we need a couple of things
 
     * Click on the environment name TechLab-Environment-Automation
 
-    * Set the first 5 environment variables to your values. Ensure to set both the initial and current values. For dtURL it should look like  SaaS - `{your-environment-id}.live.dynatrace.com` or for Managed - `{your-domain}/e/{your-environment-id}` do not include the 'https://'. Do not touch the 'installET' variable.
+    * Set all the environment variables except installET to your values. Do not touch the 'installET' variable. Ensure to set both the initial and current values. For dtURL it should look like  SaaS - `{your-environment-id}.live.dynatrace.com` or for Managed - `{your-domain}/e/{your-environment-id}` do not include the 'https://'. 
 
     ![](./images/preparation/environmentVars.png)
 
@@ -268,7 +268,7 @@ The secret sauce here that you should be aware of is [AWS UserData](https://docs
 This is part of postman. You can use pre-request scripts in Postman to execute JavaScript before a request runs. You can find more details [here](https://learning.postman.com/docs/postman/scripts/pre-request-scripts/)
 In our case the script sets the correct host group when requests are executed and updates the userdata to be sent to aws.
 
-**ATTENTION:** When we create these hosts they are set to auto terminate after 8 hours. If you do not want them to auto terminate then please comment out lines 34 & 35. The host is also set to auto terminate on shutdown so keep in mind even if you comment this line out the host would still terminate if you shut it down.
+**ATTENTION:** When we create these hosts they are set to auto terminate after 8 hours. If you do not want them to auto terminate then please comment out lines 39 & 40. The host is also set to auto terminate on shutdown so keep in mind even if you comment this line out the host would still terminate if you shut it down.
 
 To change the shutdown behaviour of an instance using the console (only after you have started your instance)
 
@@ -281,7 +281,7 @@ To change the shutdown behaviour of an instance using the console (only after yo
 
 **Executing the request**
 This request is designed to start 2 instance of easyTravel, one with the host group production and the second with the host group test. We will execute the request twice to achieve this. No changes are required as they are done automatically
-1. Open the `Launch AWS easyTravel Instances \(Optional\)` request.
+1. Open the `Launch AWS easyTravel Instances (Optional)` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `200 OK` response and the Production instance name tag.
 
@@ -304,7 +304,9 @@ This request is designed to start 2 instance of easyTravel, one with the host gr
 
 ![](./images/runinstances/runInstancesDT.png)
 
-Congratulations you have just created 2 new ec2 instances and auto deployed the OneAgent.
+Congratulations you have just created 2 new ec2 instances. Ontop of creating the instances we also auto deployed the OneAgent. By leveraging the Dynatrace APIs we can manage huge deployment roll outs, ensure every host is automatically monitored and connected to the correct tenant. On top of that we also provided custom meta data to each of our hosts. You can view this by drilling down to one of your hosts
+
+![](./images/runinstances/metadatDT.png)
 
 **Troubleshooting**
 If after 10 mins your hosts have not appeared in dynatrace check the following.
