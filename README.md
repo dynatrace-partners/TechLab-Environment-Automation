@@ -1045,19 +1045,19 @@ The JSON body of the request provides the required information. The body must no
 
 **Pre-request script**
 This is part of postman. You can use pre-request scripts in Postman to execute JavaScript before a request runs. You can find more details [here](https://learning.postman.com/docs/postman/scripts/pre-request-scripts/)
-In our case the script sets the correct management zone when requests are executed and updates the request body to be sent.
+In our case we will do the filtering based on our management zones so the script sets the correct management zone when requests are executed and updates the request body to be sent.
 
 **Tests**
 
 This is part of postman and not a requirement to create an environment via an API call. You can use Tests in Postman to execute JavaScript after a request runs. You can find more details [here](https://learning.postman.com/docs/postman/scripts/test-scripts/)
-In our case the script controls setting which rule we are running and throws an error if the request is executed again after both alerting profiles have been created.
+In our case the script saves the alerting profile ID as an environment variable so we can use it when we set up our problem notifications, controls setting which rule we are running and throws an error if the request is executed again after both alerting profiles have been created.
 
 **Executing the request**
 1. Open the Create Alerting Profile request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createAPResp.png)
+![](./images/aps/createAPResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
@@ -1065,6 +1065,9 @@ In our case the script controls setting which rule we are running and throws an 
 
 4. Execute the request again to create the Test alerting profile.
 5. Check that the request received a `201 Created` response.
+6. Check that the prodAPID & testAPID environment variables have been set in postman
+
+![](./images/aps/createAPVars.png)
 
 Congratulations you have just created 2 alerting profiles via an API call. 
 
