@@ -29,7 +29,7 @@ We will run these steps individually, so you get a feel for how they operate. In
 5. Optional: ActiveGates - An ActiveGate is not required to complete these exercises but depending on your install and security requirements you may also require a Cluster and/or Environment ActiveGate. For more info see [When do I need to install an ActiveGate?](https://www.dynatrace.com/support/help/setup-and-configuration/dynatrace-activegate/basic-concepts/when-do-i-need-to-install-an-activegate/)
 6. [Postman](https://www.postman.com/downloads/) installed
 7. You need to clone or copy the content of this GitHub repo to your local disk!
-8. An api endpoint. I recommend using [webhook,site](https://webhook.site)
+8. An api endpoint. I recommend using [webhook.site](https://webhook.site)
 9. Your email address
 
 ## Preparation
@@ -304,10 +304,6 @@ This request is designed to start 2 instance of easyTravel, one with the host gr
 
 ![](./images/runinstances/runInstancesDT.png)
 
-Congratulations you have just created 2 new ec2 instances. Ontop of creating the instances we also auto deployed the OneAgent. By leveraging the Dynatrace APIs we can manage huge deployment roll outs, ensure every host is automatically monitored and connected to the correct tenant. On top of that we also provided custom meta data to each of our hosts. You can view this by drilling down to one of your hosts
-
-![](./images/runinstances/metadatDT.png)
-
 **Troubleshooting**
 If after 10 mins your hosts have not appeared in dynatrace check the following.
 1. In the AWS EC2 console select one of your instances and click on Actions > Instance settings > View/Change User Data.
@@ -315,9 +311,11 @@ If after 10 mins your hosts have not appeared in dynatrace check the following.
     * Check the values for your managed environment URL add API token in the wget command
 2. Log on to your instance and view log /var/log/cloud-init-output.log to check for errors in downloading, installing or connection of your OneAgent. You can do this by executing `Tail -f /var/log/cloud-init-output.log`. Please note to access the instance you will need to have specified KeyName when you created the instance. 
 
-# 4. Get host information
+Congratulations you have just created 2 new ec2 instances. Ontop of creating the instances we also auto deployed the OneAgent. By leveraging the Dynatrace APIs we can manage huge deployment roll outs, ensure every host is automatically monitored and connected to the correct tenant. On top of that we also provided custom meta data to each of our hosts. You can view this by drilling down to one of your hosts
 
-Now that you have deployed your two hosts, log into dyantrace and check out the monitoring. Is it easy to tell which host is test and which is production? 
+![](./images/runinstances/metadatDT.png)
+
+Now that you have deployed your two hosts, check out the monitoring. Is it easy to tell which host is test and which is production? 
 
 ![](./images/hosts/hostsDT.png)
 
@@ -330,6 +328,8 @@ How would you filter to only see the data for one environment? Have a look at th
 ![](./images/hosts/servicesDT.png)
 
 In these next requests we want to configure our environment so the users can get better value from it. In order to do this we need some information on our hosts so rather than gather that manually we will use the API to get the info we need and then use it to configure the environment using API calls.
+
+# 4. Get host information
 
 ## Get host information background 
 
@@ -816,7 +816,7 @@ Content-Type | application/json | The response contains JSON payload
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server. In our case we want to supply 2 rules for the Loyalty Status request attribute. The first rule will look for the method name `checkLoyaltyStatus` in the `com.dynatrace.easytravel.business.webservice.BookingService` class and the second will look for the method `getLoyaltyStatus` in  the `com.dynatrace.easytravel.business.webservice.AuthenticationService`. 
 
 **Executing the request**
-1. Open the Create Request Attribute request.
+1. Open the `Create Request Attribute` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
@@ -826,6 +826,9 @@ The JSON body of the request provides the required information. The body must no
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
+4. Check the request attributes appear in dyntrace by navigating to Transactions and services > BookingService > Web requests amd them slect request attributes at the bottom. You will have to click on Loyalty Status to see the values. Please note it may take 5-10 minutes before they appear due to the low load on the system. If they do not appear after this time check that you have enabled real-time updates to java services.
+
+![](./images/rqs/createReqAttDT.png)
 
 Congratulations you have just created a new request attribute via an API call. 
 
@@ -887,16 +890,21 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script controls setting which rule we are running and throws an error if the request is executed again after all three load test request attribute rules have been created.
 
 **Executing the request**
-1. Open the Create Load Test Request Attribute request.
+1. Open the `Create Load Test Request Attribute` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createLTReqAttResp.png)
+![](./images/rqs/createLTReqAttResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
+4. Execute the request 2 more times to create the other load test request attributes.
+5. Check that the request received a 201 Created response. If you get an error follow the troubleshooting above.
+6. You will only see values for these later when you run the load test but you can check they have been created in dynatrace by navigating to Settings > Server-side service monitoring > Request Attributes
+
+![](./images/rqs/createLTReqAttDT.png)
 
 Congratulations you have just created 3 new request attributes via an API call. 
 
@@ -945,16 +953,19 @@ Content-Type | application/json | The response contains JSON payload
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server. In our case we want to create a single calculated service metric for bookings by loyalty status. We will specify a unique metric key under tsmMetricKey, that we want a request count and the conditions that request name is storeBooking and the request attribute loyalty status exists.
 
 **Executing the request**
-1. Open the Create Calculated Service Metric request.
+1. Open the `Create Calculated Service Metric` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createCSMResp.png)
+![](./images/csms/createCSMResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
 
+4. After 5-10 minutes you can view your new calculated service metric by creating a custom chart. You will find Bookings by Loyalty Status under the services category.
+
+![](./images/csms/createCSMResp.png)
 
 Congratulations you have just created a new calculated service metric via an API call. 
 
@@ -967,6 +978,8 @@ Wait a few minutes then create a custom chart to view the results.
 **Why are we modifying the dynatrace web applications?**
 
 In real-life environments there will be times when you need to change configurations, such as application updates, SLA changes etc. In your dynatrace environment have a look at your easyTravel Angular - Production application. You should notice that there are some javascript frameworks detected that are not enabled. We also have no conversion goals defined.
+
+![](./images/app/modifyAppDT.png)
 
 We are going to enable the angular javascript framework and set a conversion goal.
 
@@ -993,15 +1006,19 @@ Content-Type | application/json | The response contains JSON payload
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server. In our case as this is modifying an existing application the body will be similar to the body we used to create it, but this time we will set angular to true and we supply the conversion goal settings which you will see at the bottom. In real-life you could also poll the get a application API first to gather the current config which could then be used to create the new body.
 
 **Executing the request**
-1. Open the Modify Web Application request.
+1. Open the `Modify Web Application` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `204 No Content` response.
 
-![](./images/envtoken/modifyWebAppResp.png)
+![](./images/app/modifyWebAppResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
+
+4. View the results in dynatrace. Please note only completed user sessions are considered when looking at conversion goals so it could take up to 30 minutes before they start being calculated. 
+
+![](./images/app/modifyWebAppDT.png)
 
 Congratulations you have just modified your web applications via an API call.
 
@@ -1057,7 +1074,7 @@ This is part of postman and not a requirement to create an environment via an AP
 In our case the script saves the alerting profile ID as an environment variable so we can use it when we set up our problem notifications, controls setting which rule we are running and throws an error if the request is executed again after both alerting profiles have been created.
 
 **Executing the request**
-1. Open the Create Alerting Profile request.
+1. Open the `Create Alerting Profile` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
@@ -1072,6 +1089,10 @@ In our case the script saves the alerting profile ID as an environment variable 
 6. Check that the prodAPID & testAPID environment variables have been set in postman
 
 ![](./images/aps/createAPVars.png)
+
+7. Verify in dynatrace your two new alerting progiles have been set up under Settings> Alerting > Alerting profiles
+
+![](./images/aps/createAPDT.png)
 
 Congratulations you have just created 2 alerting profiles via an API call. 
 
@@ -1118,15 +1139,21 @@ Content-Type | application/json | The response contains JSON payload
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server. In our case we want to create an email notification that will go to the address you configured in the prerequisites. The type will be EMAIL and we will specify the address using the environment variable \{\{email\}\} and the production alerting profile filter that we created previously using the environment variable \{\{prodAPID\}\}. You can also control the subject line and body. Our subject line will contain the state of the problem, the problem ID and the impacted entity. This way we will know what is going on from just the email subject. For the body we will simply include the problem details in HTML format to give us more information.
 
 **Executing the request**
-1. Open the Create Email Notifications request.
+1. Open the `Create Email Notifications` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createEmailResp.png)
+![](./images/notifications/createEmailResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
+
+4. Verify in dynatrace that your email notification is set up by navigating to Settings > Integration > Problem notifications. Edit your email notification and you will see all the settings we applied including the Production alerting profile. You can also hit send test notification to test your setup.
+
+![](./images/notifications/createEmailDT.png)
+
+![](./images/notifications/createEmailMail.png)
 
 Congratulations you have just created an email notification via an API call. Now we will set up a custom webhook notification.
 
@@ -1173,15 +1200,21 @@ Content-Type | application/json | The response contains JSON payload
 The JSON body of the request provides the required information. The body must not provide an ID as it will be automatically assigned by the Dynatrace server. In our case we want to create a webhook notification that will go to the webhook.site you configured in the prerequisites. This time the type will be WEBHOOK and we will specify the url using the environment variable \{\{webhook\}\} and the test alerting profile filter that we created previously using the environment variable \{\{testAPID\}\}. This time the information we want to supply is provided in the payload.
 
 **Executing the request**
-1. Open the Create Webhook Notifications request.
+1. Open the `Create Webhook Notifications` request.
 2. Click on `Send` to execute the request.
 3. Check that the request received a `201 Created` response.
 
-![](./images/envtoken/createWHResp.png)
+![](./images/notifications/createWHResp.png)
 
     If you get a could not send request error check the value of your dtURL environment variable. Ensure both the initial and current values are set and the same.
 
     If you get a 401 error check the value of your dtAPI environment variable. Ensure both the initial and current values are set and the same. If they are set, verify the token is correct in your environment and it has the Write Config API role. Be careful if your token ends with a = as this can get cut off when copying and pasting.
+
+4. Verify in dynatrace that your webhook notification is set up by navigating to Settings > Integration > Problem notifications. Edit your email notification and you will see all the settings we applied including the Test alerting profile. You can also hit send test notification to test your setup.
+
+![](./images/notifications/createWhDT.png)
+
+![](./images/notifications/createWh.png)
 
 Congratulations you have just created an email notification via an API call. Now we will set up a custom webhook notification.
 
@@ -1192,17 +1225,15 @@ The easyTravel Business Backend process provides REST interfaces for controlling
 In our case we are going to enable the plugin SlowApacheWebserver on our test host which slows down Apache Webserver. If you wish to disable it again later simply change the parameter enabled from true to false.
 
 **Executing the request**
-1. Open the Start ET problem request.
+1. Open the `Start ET problem` request.
 2. Click on `Send` to execute the request.
-3. Check that the request received a `200 OK` response.
+3. Check that the request received a `202 Accepted` response.
 
-![](./images/ami/getstartETPResp.png)
-
-    If you get a 401 error check the value of your accessKeyID, secretAccessKey and region environment variables. Ensure both the initial and current values are set and the same. If they are verify you have added the correct roles in IAM.
+![](./images/problem/getstartETPResp.png)
 
 5. Wait a few minutes then you should receive a problem notification you your webhook.site
 
-![](./images/ami/getstartETPN.png)
+![](./images/problem/getstartETPN.png)
 
 Now that we have the latest Ubuntu image AMI we can launch our ec2 instances.
 
